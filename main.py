@@ -7,7 +7,7 @@ import logging,extract,assemble,subprocess
 import newass
 from setup import init,restartJob
 from files import create
-from frags import find_mons
+from frags import find_mons, read_mons
 from COMPS import JOBS
 #from COMPS_pbs import JOBS
 
@@ -58,6 +58,7 @@ f12file=wrkdir+'/f12a'
 rhfile=wrkdir+'/rhf'
 scalefile=wrkdir+'/scale'
 corrFile=wrkdir+'/correlation'
+fragFile=wrkdir+'/frags.in'
 if os.path.exists(tfile):
     print "I found ", tfile
     tflag=True
@@ -83,6 +84,11 @@ if os.path.exists(corrFile):
     CORR=True
 else:
     CORR=False
+if os.path.exists(fragFile):
+    MANUAL_FRAGMENTS = True
+else:
+    MANUAL_FRAGMENTS = False
+
 
 # Configure main.py logger
 mainlogger=logging.getLogger('Iter%s' %suffix)
@@ -93,7 +99,16 @@ mainlogger.info("Deriv = %d\n" %deriv)
 create(wrkdir,scrdir,suffix,level,tflag)
 
 # Call find_mons function to map the monomers
-coords,mons=find_mons(input)
+if MANUAL_FRAGMENTS:
+    mainlogger.info("Requested manual fragment specification...")
+    try:
+        coords,mons=read_mons(input, fragFile)
+    except Exception as e:
+        mainlogger.exception("Had a problem reading manual fragments: ", str(e))
+        raise
+else:
+    mainlogger.info("Performing automatic fragment finding...")
+    coords,mons=find_mons(input)
 
 # Create monomer input
 if level>0:
