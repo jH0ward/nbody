@@ -102,7 +102,7 @@ def read_mons(input, frag_file):
     f.close()
     mons = []
     for line in lines:
-        line = line.strip()
+        line = line.strip()  # throw whitespace away
         # Ignore comments
         try:
             if line[0] == "#":
@@ -112,18 +112,20 @@ def read_mons(input, frag_file):
 
         # Lines look like  0 1 2 for monomer of atoms 0, 1, and 2 in a frag
         atoms_in_fragment = line.split()
+        # Make ints not strings
+        atoms_in_fragment = [int(a) for a in atoms_in_fragment]
         mons.append(atoms_in_fragment)
 
+    # coords is the tuple of (atomic_symbols, xyz_geometry)
     coords = read_geom_from_file(input)
 
-    # Lastly, insist that the number of atoms in the manual frag file is correct ( == natom)
+    # Do a couple of QA checks and raise fatal errors
     flat_atoms_list = list(itertools.chain(*mons))  # standard way of flattening a list of lists into 1d array
-    flat_atoms_list.sort()
     natom = len(coords[0])
     n_atoms_mapped = len(flat_atoms_list)
 
     # Fail if n_atoms_mapped != natom
-    assert n_atoms_mapped == natom, "Only mapped " + str(n_atoms_mapped) + \
+    assert n_atoms_mapped == natom, "Mapped " + str(n_atoms_mapped) + \
                                     " atoms vs natom==" + str(natom) + "!"
 
     # Checks for missing / repeat atomic indices
