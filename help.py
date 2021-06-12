@@ -6,7 +6,8 @@ import datetime
 import logging
 import extract
 import assemble
-from setup import init, restartJob
+import numpy as np
+from ext_setup import init, restartJob
 from files import create
 from frags import find_mons
 from COMPS import JOBS
@@ -80,11 +81,11 @@ if level > 0:
     loMonJobs = []
     for i in range(nmons):
         hiMonJobs.append(JOBS(mons[i], coords, "hi", "mon", i))
-        if tflag == False:
+        if not tflag:
             loMonJobs.append(JOBS(mons[i], coords, "lo", "mon", i))
 
         hiMonJobs[i].makeInput(wrkdir, suffix)
-        if tflag == False:
+        if not tflag:
             loMonJobs[i].makeInput(wrkdir, suffix)
 
 # Create dimer input
@@ -95,11 +96,11 @@ if level > 1:
     loPairJobs = []
     for i in range(npairs):
         hiPairJobs.append(JOBS(pairs[i], coords, "hi", "pair", i))
-        if tflag == False:
+        if not tflag:
             loPairJobs.append(JOBS(pairs[i], coords, "lo", "pair", i))
 
         hiPairJobs[-1].makeInput(wrkdir, suffix)
-        if tflag == False:
+        if not tflag:
             loPairJobs[-1].makeInput(wrkdir, suffix)
 
 # Create trimer input
@@ -110,11 +111,11 @@ if level > 2:
     loTrimerJobs = []
     for i in range(ntrimers):
         hiTrimerJobs.append(JOBS(trimers[i], coords, "hi", "trimer", i))
-        if tflag == False:
+        if not tflag:
             loTrimerJobs.append(JOBS(trimers[i], coords, "lo", "trimer", i))
 
         hiTrimerJobs[-1].makeInput(wrkdir, suffix)
-        if tflag == False:
+        if not tflag:
             loTrimerJobs[-1].makeInput(wrkdir, suffix)
 
 # Create tetrad input
@@ -132,30 +133,27 @@ if level > 3:
     loTetradJobs = []
     for i in range(ntetrads):
         hiTetradJobs.append(JOBS(tetrads[i], coords, "hi", "tetrad", i))
-        if tflag == False:
+        if not tflag:
             loTetradJobs.append(JOBS(tetrads[i], coords, "lo", "tetrad", i))
 
         hiTetradJobs[-1].makeInput(wrkdir, suffix)
-        if tflag == False:
+        if not tflag:
             loTetradJobs[-1].makeInput(wrkdir, suffix)
 
 # Create cluster input
 natom = len(coords[0])
 clusterJob = JOBS(list(range(natom)), coords, "", "cluster", "")
-if tflag == False:
+if not tflag:
     clusterJob.makeInput(wrkdir, suffix)
 print("Colemon")
-
 
 # Run everything and extract info
 newdir = wrkdir + "/ExtFiles/iter_" + suffix + "/"
 # New code to determine user
 user = getpass.getuser()
-# process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],shell=True,stdout=subprocess.PIPE)
-# init_jobs=int(process.communicate()[0])
 # Run loMonJobs
 if level > 0:
-    if tflag == False:
+    if not tflag:
         jobQ = deque(loMonJobs)
         while len(jobQ) > 0:
             # process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],
@@ -196,7 +194,7 @@ if level > 0:
     # Run loPair Jobs
     # wstat=0
 if level > 1:
-    if tflag == False:
+    if not tflag:
         jobQ = deque(loPairJobs)
         while len(jobQ) > 0:
             #   process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],
@@ -232,7 +230,7 @@ if level > 1:
 # Run lo trimer Jobs
 if level > 2:
     wstat = 0
-    if tflag == False:
+    if not tflag:
         jobQ = deque(loTrimerJobs)
         while len(jobQ) > 0:
             #         process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],
@@ -270,7 +268,7 @@ if level > 2:
 # Run lo tetramer Jobs
 if level > 3:
     wstat = 0
-    if tflag == False:
+    if not tflag:
         jobQ = deque(loTetradJobs)
         while len(jobQ) > 0:
             #    process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],
@@ -305,8 +303,8 @@ if level > 3:
 
     wstat = 0
 
-## Run cluster job
-if tflag == False:
+# Run cluster job
+if not tflag:
     clusterJob.runInput(newdir, scrdir)
 
 # wait=1
@@ -321,7 +319,7 @@ if tflag == False:
 
 
 if level > 0:
-    if tflag == False:
+    if not tflag:
         for i in loMonJobs:
             #            i.runInput(newdir,scrdir)
             extract.energy(i, newdir)
@@ -331,7 +329,7 @@ if level > 0:
                     extract.hessian(i, newdir)
 
 if level > 1:
-    if tflag == False:
+    if not tflag:
         for i in loPairJobs:
             #            i.runInput(newdir,scrdir)
             extract.energy(i, newdir)
@@ -341,7 +339,7 @@ if level > 1:
                     extract.hessian(i, newdir)
 
 if level > 2:
-    if tflag == False:
+    if not tflag:
         for i in loTrimerJobs:
             #            i.runInput(newdir,scrdir)
             extract.energy(i, newdir)
@@ -351,7 +349,7 @@ if level > 2:
                     extract.hessian(i, newdir)
 
     if level > 3:
-        if tflag == False:
+        if not tflag:
             for i in loTetradJobs:
                 print("yoo")
                 print(i)
@@ -404,7 +402,7 @@ if level > 2:
                     extract.hessian(i, newdir)
 
 # clusterJob.runInput(newdir,scrdir)
-if tflag == False:
+if not tflag:
     extract.energy(clusterJob, newdir)
     if deriv > 0:
         extract.grad(clusterJob, newdir)
@@ -433,9 +431,9 @@ if deriv > 0:
 
 G = np.zeros(natom * 3)
 G.shape = (natom, 3)
-## Send it back
+# Send it back
 f = open(output, "w")
-print("%.12f," % E, "0.0, 0.0, 0.0", file=f)  ### zeroes are for dipole
+print("%.12f," % E, "0.0, 0.0, 0.0", file=f)  # zeroes are for dipole
 if deriv > 0:
     for i in range(natom):
         print("%.14f," % G[i][0], "%.12f," % G[i][1], "%.12f" % G[i][2], file=f)

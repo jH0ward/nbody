@@ -1,5 +1,5 @@
 # assemble.py
-import logging, sys
+import logging
 import numpy as np
 
 
@@ -28,8 +28,7 @@ def newenergy(Jobs, level, tflag=False):
     monCount = 0
     pairCount = 0
     triCount = 0
-    tetCount = 0
-    if tflag == False:
+    if not tflag:
         Eref = clusterJob.energy
 
     E = 0.0
@@ -379,7 +378,6 @@ def newenergy(Jobs, level, tflag=False):
 
 
 def newgrad(Jobs, level, tflag=False):
-    al = logging.getLogger("Gradient Assembly")
     clusterJob = Jobs[0]
     if level == 0:
         return clusterJob.rgrad
