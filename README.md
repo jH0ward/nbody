@@ -9,3 +9,8 @@ Here are some papers that used this code:
 - [N-body:Many-body QM:QM vibrational frequencies: Application to small hydrogen-bonded clusters](https://aip.scitation.org/doi/abs/10.1063/1.4829463)
 
 The approach is based on research under [Greg Tschumper](http://quantum.chem.olemiss.edu/index.html) at the University of Mississippi.
+
+
+--
+### development
+This has been translated from Python 2 to 3. To use the commit hooks specified in .pre-commit-config.yaml, `pip install pre-commit` and `pre-commit install`.
