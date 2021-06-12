@@ -1,9 +1,0 @@
-# table.py
-
-def get_symbol(atnum):
-    chart = ["X", "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne",
-             "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "K", "Ca",
-             "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga",
-             "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr" ]
-    return chart[atnum]
-
