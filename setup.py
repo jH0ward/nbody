@@ -29,7 +29,7 @@ def init(layer,input,output,msgfile):
         index=1                             # or it must be the 1st iteration
         for i in (extdir,logf):
             if os.path.exists(i):
-                print "\n\nERROR: Delete ",i,"or rename it"
+                print("\n\nERROR: Delete ",i,"or rename it")
                 os.sys.exit()
 
     # Turn index into string for naming files

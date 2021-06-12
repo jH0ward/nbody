@@ -76,31 +76,31 @@ class JOBS:
         f_foot=open(footer,'r')
 
         # Drop header
-        for line in f_head:  print >> f_in, line.rstrip()
+        for line in f_head:  print(line.rstrip(), file=f_in)
         f_head.close()
 
         # Drop coordinates
         for i in range(self.natom):
             # Print atomic symbol 1st
-            print >> f_in, self.symbols[i],
+            print(self.symbols[i], end=' ', file=f_in)
 
             # NOTE: mpqc needs extra [
             if self.exprog=='mpqc':
-                print >> f_in, '[',
+                print('[', end=' ', file=f_in)
 
             # Print x,y,z for atom i
             for j in self.coords[i]:
-                print >> f_in, "%.12f" % j,
+                print("%.12f" % j, end=' ', file=f_in)
 
             # NOTE: mpqc needs extra ]
             if self.exprog=='mpqc':
-                print >> f_in, ']',
+                print(']', end=' ', file=f_in)
 
             # Move to next line
-            print >> f_in, "\n",
+            print("\n", end=' ', file=f_in)
 
         # Drop footer
-        for line in f_foot: print >> f_in, line,
+        for line in f_foot: print(line, end=' ', file=f_in)
         f_foot.close()
         bs_file=wrkdir+'/basis_set.in'
         if os.path.exists(bs_file):
@@ -111,8 +111,8 @@ class JOBS:
                 symbols=self.symbols
                 for i in range(len(symbols)):
                     #print >> f_in, symbols[i]+:"HVYAUGPVDZ"
-                    print >> f_in, symbols[i]+":"+bs
-                print >> f_in, "\n"
+                    print(symbols[i]+":"+bs, file=f_in)
+                print("\n", file=f_in)
         g09_bs=wrkdir+'/g09basis_set.in'
         bs={}
         if os.path.exists(g09_bs):
@@ -137,10 +137,10 @@ class JOBS:
                     if match==False:
                         temp.append(symbols[i])
                 for i in range(len(temp)):
-                        print >> f_in, temp[i]
-                        print >> f_in, bs[temp[i]]
-                        print >> f_in, "****"
-                print >> f_in, "\n"
+                        print(temp[i], file=f_in)
+                        print(bs[temp[i]], file=f_in)
+                        print("****", file=f_in)
+                print("\n", file=f_in)
         f_in.close()
 
         JOBlogger.info('\nNew Input created --> %s\n' %self.input)

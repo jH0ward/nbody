@@ -75,31 +75,31 @@ class JOBS:
         f_foot=open(footer,'r')
 
         # Drop header
-        for line in f_head:  print >> f_in, line.rstrip()
+        for line in f_head:  print(line.rstrip(), file=f_in)
         f_head.close()
 
         # Drop coordinates
         for i in range(self.natom):
             # Print atomic symbol 1st
-            print >> f_in, self.symbols[i],
+            print(self.symbols[i], end=' ', file=f_in)
 
             # NOTE: mpqc needs extra [
             if self.exprog=='mpqc':
-                print >> f_in, '[',
+                print('[', end=' ', file=f_in)
 
             # Print x,y,z for atom i
             for j in self.coords[i]:
-                print >> f_in, "%.12f" % j,
+                print("%.12f" % j, end=' ', file=f_in)
 
             # NOTE: mpqc needs extra ]
             if self.exprog=='mpqc':
-                print >> f_in, ']',
+                print(']', end=' ', file=f_in)
 
             # Move to next line
-            print >> f_in, "\n",
+            print("\n", end=' ', file=f_in)
 
         # Drop footer
-        for line in f_foot: print >> f_in, line,
+        for line in f_foot: print(line, end=' ', file=f_in)
         f_foot.close()
         f_in.close()
 

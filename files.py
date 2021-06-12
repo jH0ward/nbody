@@ -36,8 +36,8 @@ def create(wrkdir,scrdir,suffix,level,tflag):
     # Check for monomer and pair header and footer
     missing = [i for i in head_and_foot if not os.path.exists(i) ]
     if missing:
-        print "You are missing ", missing
-        print "Exiting now..."
+        print("You are missing ", missing)
+        print("Exiting now...")
         createlogger.critical('\nMissing file %s\nExiting....\n' %missing)
         sys.exit()
 
@@ -47,8 +47,8 @@ def create(wrkdir,scrdir,suffix,level,tflag):
 
         missing = [i for i in cluster_files if not os.path.exists(i) ]
         if missing:
-            print "You are missing ",missing
-            print "Exiting now..."
+            print("You are missing ",missing)
+            print("Exiting now...")
             createlogger.critical('\nMissing file %s\nExiting....' %missing)
             sys.exit()
 
@@ -60,10 +60,10 @@ def create(wrkdir,scrdir,suffix,level,tflag):
     
     missing = [i for i in cmd_files if not os.path.exists(i)]
     if missing:
-        print "You are missing ", missing
+        print("You are missing ", missing)
         createlogger.critical('\nMissing file %s\nExiting....\n' %missing)
         sys.exit()
-        print "Exiting now..."
+        print("Exiting now...")
     newdir = wrkdir+'/ExtFiles/iter_'+suffix
     call(['mkdir', '-p', newdir ])
     call(['cp','-f',wrkdir+'/GENBAS',newdir])

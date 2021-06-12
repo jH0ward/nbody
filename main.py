@@ -17,21 +17,21 @@ call_time=datetime.datetime.now()
 # Accept input from g09
 level=int(sys.argv[1])
 if level==0:
-    print "Requesting external calculation of cluster"
+    print("Requesting external calculation of cluster")
 elif level==1:
-    print "Requesting 1-body QM:QM calculation"
+    print("Requesting 1-body QM:QM calculation")
 elif level==2:
-    print "Requesting 2-body QM:QM calculation"
+    print("Requesting 2-body QM:QM calculation")
 elif level==3:
-    print "Requesting 3-body QM:QM calculation"
+    print("Requesting 3-body QM:QM calculation")
 elif level==4:
-    print "Requesting 4-body QM:QM calculation"
+    print("Requesting 4-body QM:QM calculation")
 else:
-    print "Invalid option"
+    print("Invalid option")
     sys.exit()
 
 if sys.argv[2]=='Restart':
-    print "Received restart flag"
+    print("Received restart flag")
     layer,input,output,msgfile=sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6]
     restart=1
 else:
@@ -60,7 +60,7 @@ scalefile=wrkdir+'/scale'
 corrFile=wrkdir+'/correlation'
 fragFile=wrkdir+'/frags.in'
 if os.path.exists(tfile):
-    print "I found ", tfile
+    print("I found ", tfile)
     tflag=True
 else:
     tflag=False
@@ -173,10 +173,10 @@ if level>3:
 
 # Create cluster input
 natom=len(coords[0])
-clusterJob=JOBS(range(natom),coords,'','cluster','')
+clusterJob=JOBS(list(range(natom)),coords,'','cluster','')
 if tflag==False:
     clusterJob.makeInput(wrkdir,suffix)
-print "Colemon"
+print("Colemon")
 
 
 # Run everything and extract info
@@ -386,9 +386,9 @@ if level>2:
     if level>3:
         if tflag==False:
             for i in loTetradJobs:
-                print "yoo"
-                print i
-                print i.output
+                print("yoo")
+                print(i)
+                print(i.output)
                 mainlogger.info("Inside lotet\n")
                 mainlogger.info("i = ",i)
                 mainlogger.info("i.label = ",i.label)
@@ -466,16 +466,16 @@ if deriv>0:
 
  ## Send it back
 f= open(output, 'w')
-print >> f, "%.12f," % E, "0.0, 0.0, 0.0"  ### zeroes are for dipole
+print("%.12f," % E, "0.0, 0.0, 0.0", file=f)  ### zeroes are for dipole
 if deriv>0:
     for i in range(natom):
-        print >> f, "%.14f," % G[i][0], "%.12f," % G[i][1],"%.12f" % G[i][2]
+        print("%.14f," % G[i][0], "%.12f," % G[i][1],"%.12f" % G[i][2], file=f)
 
     if deriv>1:
         for i in range(2):
-            print >> f, "0.0, 0.0, 0.0"
+            print("0.0, 0.0, 0.0", file=f)
         for i in range(3*natom):
-            print >> f, "0.0, 0.0, 0.0"
+            print("0.0, 0.0, 0.0", file=f)
         perline=0
         for i in range(natom):
             for j in range(3):
@@ -486,9 +486,9 @@ if deriv>0:
                         lrange=3
                     for l in range(lrange):
                         if perline==3:
-                            print >> f, "\n",
+                            print("\n", end=' ', file=f)
                             perline=0
-                        print >> f, "%.14f, "%H[i][j][k][l],
+                        print("%.14f, "%H[i][j][k][l], end=' ', file=f)
                         perline+=1
 f.close()
 call(["cp", "-f", output, wrkdir+"/checkout.txt"])

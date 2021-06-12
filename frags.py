@@ -54,7 +54,7 @@ def find_mons(input):
                     dist[i][k] = LA.norm(xyz_in[i]-xyz_in[k])
                     dist[k][i] = dist[i][k]
 ### Set up queue
-    queue = deque(range(natom))
+    queue = deque(list(range(natom)))
 ## Lol (list of lists) holds frags
     lol=[]
 #### Put first atom from queue into lol

@@ -70,7 +70,7 @@ def energy(job,newdir,f12aFlag,scaleTrips,just_corr):
 
     elif job.exprog=='molpro':
         output=job.base+'.out'
-        print "output = ",output
+        print("output = ",output)
         f=open(output,'r')
         if scaleTrips>-1.0:
             if f12aFlag==True:

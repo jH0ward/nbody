@@ -151,7 +151,7 @@ def matrix(job,tempHess):
         if nr == -1:
             myrot = tmp1rot
         elif not nr >= 2 and nr < natom:
-            print "We're fucked"
+            print("We're fucked")
         
         ### Determine 2nd rotation matrix
         

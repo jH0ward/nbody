@@ -97,7 +97,7 @@ def gradient(Jobs,level):
 
     if level==3:
         oneB_factor=(n-2)*(n-3)/-2.0
-        print "oneB factor = ",oneB_factor
+        print("oneB factor = ",oneB_factor)
         twoB_factor=n-3
 
 
@@ -105,29 +105,29 @@ def gradient(Jobs,level):
         a=0
         for j in i.atoms:
             if j==0:
-                print "Before Subtracting from atom 0"
-                print G[0]
+                print("Before Subtracting from atom 0")
+                print(G[0])
             for k in range(3):
                 #G[j][k]-=(n-2)*(n-3)/2.0*i.rgrad[a][k]
                 G[j][k]+=oneB_factor*i.rgrad[a][k]
             if j==0:
-                print "After subtraction atom 0 = ",G[0]
+                print("After subtraction atom 0 = ",G[0])
             a+=1
             
     for i in hiMonJobs:
         a=0
         for j in i.atoms:
             if j==0:
-                print "Adding to atom 0"
+                print("Adding to atom 0")
             for k in range(3):
                 #G[j][k]+=(n-2)*(n-3)/2.0*i.rgrad[a][k]
                 G[j][k]-=oneB_factor*i.rgrad[a][k]
             if j==0:
-                print "After addition atom 0 = ",G[0]
+                print("After addition atom 0 = ",G[0])
             a+=1
-    print "Coleman"
-    print "Update after mons"
-    print G
+    print("Coleman")
+    print("Update after mons")
+    print(G)
      
     for i in loPairJobs:
         a=0
@@ -144,9 +144,9 @@ def gradient(Jobs,level):
                 #G[j][k]-=(n-3)*i.rgrad[a][k]
                 G[j][k]-=twoB_factor*i.rgrad[a][k]
             a+=1
-    print "Coleman"
-    print "Update after pairs"
-    print G
+    print("Coleman")
+    print("Update after pairs")
+    print(G)
    
     # Exit if 2-body
     if level==2:
@@ -166,9 +166,9 @@ def gradient(Jobs,level):
                 G[j][k]+=i.rgrad[a][k]
             a+=1
 
-    print "Coleman"
-    print "Update after trimers"
-    print G
+    print("Coleman")
+    print("Update after trimers")
+    print(G)
 
 
     return G
