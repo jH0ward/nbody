@@ -6,50 +6,77 @@ from subprocess import call
 import logging
 import extract
 import assemble
-from setup import init, restartJob
+from ext_setup import init, restartJob
 from files import create
 from frags import find_mons, read_mons
 from COMPS import JOBS
-
-# from COMPS_pbs import JOBS
-
 from collections import deque
+import argparse
 
 call_time = datetime.datetime.now()
 # Accept input from g09
-level = int(sys.argv[1])
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "level", type=int, help="Derivative level requested (e.g. 1 for gradient)"
+)
+parser.add_argument(
+    "--restart", action="store_true", help="Attempt to Restart calculation"
+)
+
+parser.add_argument("layer", type=str, help="ONIOM Layer")
+parser.add_argument(
+    "input", type=str, help="Path to the gau2exprog.txt file passed by gaussian"
+)
+parser.add_argument(
+    "output", type=str, help="Path of output file to provide back to gaussian"
+)
+parser.add_argument(
+    "msgfile",
+    type=str,
+    help="path to a file for messages to append to the gaussian output",
+)
+
+# Mangle the Flag-like arguments for cleaner parsing
+flag_args = ("Restart",)
+mangled_arguments = [
+    "--" + arg.lower() if arg in flag_args else arg for arg in sys.argv[1:]
+]
+args, unknown = parser.parse_known_args(mangled_arguments)
+print("Args parsed:")
+print(args)
+print("Unknown args found:")
+print(unknown)
+
+level = args.level
+layer = args.layer
+input_file = args.input
+output = args.output
+msgfile = args.msgfile
+restart = args.restart
+
+# Print derivative info
 if level == 0:
     print("Requesting external calculation of cluster")
-elif level == 1:
-    print("Requesting 1-body QM:QM calculation")
-elif level == 2:
-    print("Requesting 2-body QM:QM calculation")
-elif level == 3:
-    print("Requesting 3-body QM:QM calculation")
-elif level == 4:
-    print("Requesting 4-body QM:QM calculation")
+elif level < 5:
+    print(f"Requesting {level}-body QM:QM calculation")
 else:
     print("Invalid option")
     sys.exit()
 
-if sys.argv[2] == "Restart":
-    print("Received restart flag")
-    layer, input, output, msgfile = sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6]
-    restart = 1
-else:
-    layer, input, output, msgfile = sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]
-    restart = 0
-
+print(layer)
+print(input_file)
+print(output)
+print(msgfile)
 # Open input and determine the calc type
-f = open(input, "r")
+f = open(input_file, "r")
 deriv = int(f.readline().split()[1])
 f.close()
 
 # Call initialize function
 if not restart:
-    return_info = init(layer, input, output, msgfile)
+    return_info = init(layer, input_file, output, msgfile)
 else:
-    return_info = restartJob(input)
+    return_info = restartJob(input_file)
 
 scrdir = return_info[0]
 wrkdir = return_info[1]
@@ -104,13 +131,13 @@ create(wrkdir, scrdir, suffix, level, tflag)
 if MANUAL_FRAGMENTS:
     mainlogger.info("Requested manual fragment specification...")
     try:
-        coords, mons = read_mons(input, fragFile)
+        coords, mons = read_mons(input_file, fragFile)
     except Exception as e:
         mainlogger.exception("Had a problem reading manual fragments: ", str(e))
         raise
 else:
     mainlogger.info("Performing automatic fragment finding...")
-    coords, mons = find_mons(input)
+    coords, mons = find_mons(input_file)
 
 # Create monomer input
 if level > 0:
@@ -119,11 +146,11 @@ if level > 0:
     loMonJobs = []
     for i in range(nmons):
         hiMonJobs.append(JOBS(mons[i], coords, "hi", "mon", i))
-        if tflag == False:
+        if not tflag:
             loMonJobs.append(JOBS(mons[i], coords, "lo", "mon", i))
 
         hiMonJobs[i].makeInput(wrkdir, suffix)
-        if tflag == False:
+        if not tflag:
             loMonJobs[i].makeInput(wrkdir, suffix)
 
 # Create dimer input
@@ -134,11 +161,11 @@ if level > 1:
     loPairJobs = []
     for i in range(npairs):
         hiPairJobs.append(JOBS(pairs[i], coords, "hi", "pair", i))
-        if tflag == False:
+        if not tflag:
             loPairJobs.append(JOBS(pairs[i], coords, "lo", "pair", i))
 
         hiPairJobs[-1].makeInput(wrkdir, suffix)
-        if tflag == False:
+        if not tflag:
             loPairJobs[-1].makeInput(wrkdir, suffix)
 
 # Create trimer input
@@ -149,22 +176,22 @@ if level > 2:
     loTrimerJobs = []
     for i in range(ntrimers):
         hiTrimerJobs.append(JOBS(trimers[i], coords, "hi", "trimer", i))
-        if tflag == False:
+        if not tflag:
             loTrimerJobs.append(JOBS(trimers[i], coords, "lo", "trimer", i))
 
         hiTrimerJobs[-1].makeInput(wrkdir, suffix)
-        if tflag == False:
+        if not tflag:
             loTrimerJobs[-1].makeInput(wrkdir, suffix)
 
 # Create tetrad input
 if level > 3:
     tetrads = [
-        i + j + k + l
+        i + j + k + m
         for i in mons
         for j in mons
         for k in mons
-        for l in mons
-        if i < j < k < l
+        for m in mons
+        if i < j < k < m
     ]
     ntetrads = len(tetrads)
     hiTetradJobs = []
@@ -189,10 +216,9 @@ print("Colemon")
 # Run everything and extract info
 newdir = wrkdir + "/ExtFiles/iter_" + suffix + "/"
 call(["cp", "-f", wrkdir + "/gau2exprog.txt", newdir])
+
 # New code to determine user
 user = getpass.getuser()
-# process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],shell=True,stdout=subprocess.PIPE)
-# init_jobs=int(process.communicate()[0])
 # Run loMonJobs
 if level > 0:
     if not tflag:
@@ -360,7 +386,7 @@ if deriv > 0:
 
 # Send it back
 f = open(output, "w")
-print("%.12f," % E, "0.0, 0.0, 0.0", file=f)  ### zeroes are for dipole
+print("%.12f," % E, "0.0, 0.0, 0.0", file=f)  # zeroes are for dipole
 if deriv > 0:
     for i in range(natom):
         print("%.14f," % G[i][0], "%.12f," % G[i][1], "%.12f" % G[i][2], file=f)
@@ -375,14 +401,14 @@ if deriv > 0:
             for j in range(3):
                 for k in range(i + 1):
                     if k == i:
-                        lrange = j + 1
+                        mrange = j + 1
                     else:
-                        lrange = 3
-                    for l in range(lrange):
+                        mrange = 3
+                    for m in range(mrange):
                         if perline == 3:
                             print("\n", end=" ", file=f)
                             perline = 0
-                        print("%.14f, " % H[i][j][k][l], end=" ", file=f)
+                        print("%.14f, " % H[i][j][k][m], end=" ", file=f)
                         perline += 1
 f.close()
 call(["cp", "-f", output, wrkdir + "/checkout.txt"])

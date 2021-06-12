@@ -1,7 +1,7 @@
 # shared_fxns.py
-import os, logging, logging.config
-from subprocess import Popen, PIPE
-import sys
+import os
+import logging
+import logging.config
 
 
 def init(layer, input, output, msgfile):
@@ -44,7 +44,6 @@ def init(layer, input, output, msgfile):
 
     # Set up log file
     logging.basicConfig(filename=logf, level=logging.DEBUG)
-    mylogger = logging.getLogger("init module")
 
     return_info = (scrdir, wrkdir, suffix)
 
@@ -63,7 +62,6 @@ def restartJob(input):
     os.system("cp -f " + input + " " + wrkdir + "/gau2exprog.txt")
 
     # Determine iteration number from ExtFiles
-    ExtDir = wrkdir + "/ExtFiles/"
     indexf = scrdir + "/GauExtern.index"  # file to determine iteration #
 
     if os.path.exists(indexf):
