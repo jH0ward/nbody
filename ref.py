@@ -1,4 +1,4 @@
-# newass.py
+# assemble.py
 import logging, sys
 import numpy as np
 

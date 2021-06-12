@@ -1,10 +1,11 @@
-#!/usr/bin/python
-import sys, os, getpass
+import sys
+import os
+import getpass
 import datetime
-import time
 from subprocess import call
-import logging, extract, assemble, subprocess
-import newass
+import logging
+import extract
+import assemble
 from setup import init, restartJob
 from files import create
 from frags import find_mons, read_mons
@@ -170,17 +171,17 @@ if level > 3:
     loTetradJobs = []
     for i in range(ntetrads):
         hiTetradJobs.append(JOBS(tetrads[i], coords, "hi", "tetrad", i))
-        if tflag == False:
+        if not tflag:
             loTetradJobs.append(JOBS(tetrads[i], coords, "lo", "tetrad", i))
 
         hiTetradJobs[-1].makeInput(wrkdir, suffix)
-        if tflag == False:
+        if not tflag:
             loTetradJobs[-1].makeInput(wrkdir, suffix)
 
 # Create cluster input
 natom = len(coords[0])
 clusterJob = JOBS(list(range(natom)), coords, "", "cluster", "")
-if tflag == False:
+if not tflag:
     clusterJob.makeInput(wrkdir, suffix)
 print("Colemon")
 
@@ -194,173 +195,69 @@ user = getpass.getuser()
 # init_jobs=int(process.communicate()[0])
 # Run loMonJobs
 if level > 0:
-    if tflag == False:
+    if not tflag:
         jobQ = deque(loMonJobs)
         while len(jobQ) > 0:
-            # process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],
-            #    shell=True,stdout=subprocess.PIPE)
-            # nJobs=int(process.communicate()[0])
-            # if nJobs>init_jobs+4:
-            #    time.sleep(5)
-            # else:
-            #    thisJob=jobQ.popleft()
             thisJob = jobQ.popleft()
             wstat = thisJob.runInput(newdir, scrdir)
-            #    wstat=thisJob.runInput(newdir,scrdir)
-            #    if wstat:
-            #        time.sleep(2)
-            #    else:
-            #        mainlogger.info("Not waiting on lo mon jobs\n")
-    #
-    # wstat=0
     # Run hiMon Jobs
     jobQ = deque(hiMonJobs)
     while len(jobQ) > 0:
-        # process=subprocess.Popen(['qstat -u jchoward | grep -c mem4g'],
-        #    shell=True,stdout=subprocess.PIPE)
-        # process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],
-        #     shell=True,stdout=subprocess.PIPE)
-        # nJobs=int(process.communicate()[0])
-        # if nJobs>init_jobs+4:
-        #     time.sleep(5)
-        # else:
-        #     thisJob=jobQ.popleft()
         thisJob = jobQ.popleft()
         wstat = thisJob.runInput(newdir, scrdir)
-    #     if wstat:
-    #         time.sleep(2)
-    #     else:
-    #         mainlogger.info("Not waiting on hi mon jobs\n")
 
     # Run loPair Jobs
-    # wstat=0
 if level > 1:
-    if tflag == False:
+    if not tflag:
         jobQ = deque(loPairJobs)
         while len(jobQ) > 0:
-            #   process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],
-            #        shell=True,stdout=subprocess.PIPE)
-            #    nJobs=int(process.communicate()[0])
-            #    if nJobs>init_jobs+4:
-            #        time.sleep(5)
-            #    else:
             thisJob = jobQ.popleft()
             wstat = thisJob.runInput(newdir, scrdir)
-            #   if wstat:
-            #       time.sleep(2)
-            #   else:
-            #       mainlogger.info("Not waiting on lo pair jobs\n")
     #
     # Run hiPair Jobs
     wstat = 0
     jobQ = deque(hiPairJobs)
     while len(jobQ) > 0:
-        #    process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],
-        #        shell=True,stdout=subprocess.PIPE)
-        #    nJobs=int(process.communicate()[0])
-        #    if nJobs>init_jobs+4:
-        #        time.sleep(5)
-        #    else:
         thisJob = jobQ.popleft()
         wstat = thisJob.runInput(newdir, scrdir)
-        #    if wstat:
-        #        time.sleep(2)
-        #    else:
-        #        mainlogger.info("Not waiting on hi pair jobs\n")
 
 # Run lo trimer Jobs
 if level > 2:
     wstat = 0
-    if tflag == False:
+    if not tflag:
         jobQ = deque(loTrimerJobs)
         while len(jobQ) > 0:
-            #         process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],
-            #            shell=True,stdout=subprocess.PIPE)
-            #         nJobs=int(process.communicate()[0])
-            #         if nJobs>init_jobs+4:
-            #             time.sleep(5)
-            #         else:
             thisJob = jobQ.popleft()
             wstat = thisJob.runInput(newdir, scrdir)
-            #    if wstat:
-            #        time.sleep(2)
-            #    else:
-            #        mainlogger.info("Not waiting on lo trimer jobs\n")
 
     # Run hi Trimer jobs
     wstat = 0
     jobQ = deque(hiTrimerJobs)
     while len(jobQ) > 0:
-        # process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],
-        #     shell=True,stdout=subprocess.PIPE)
-        # nJobs=int(process.communicate()[0])
-        # if nJobs>init_jobs+4:
-        #     time.sleep(5)
-        # else:
         thisJob = jobQ.popleft()
         wstat = thisJob.runInput(newdir, scrdir)
-        #    if wstat:
-        #        time.sleep(2)
-        #    else:
-        #        mainlogger.info("Not waiting on hi trimer jobs\n")
-
-    wstat = 0
 
 # Run lo tetramer Jobs
 if level > 3:
     wstat = 0
-    if tflag == False:
+    if not tflag:
         jobQ = deque(loTetradJobs)
         while len(jobQ) > 0:
-            #    process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],
-            #        shell=True,stdout=subprocess.PIPE)
-            #    nJobs=int(process.communicate()[0])
-            #    if nJobs>init_jobs+4:
-            #        time.sleep(5)
-            #    else:
             thisJob = jobQ.popleft()
             wstat = thisJob.runInput(newdir, scrdir)
-            #    if wstat:
-            #        time.sleep(2)
-            #    else:
-            #        mainlogger.info("Not waiting on lo tetrad jobs\n")
 
     # Run hi tetrad jobs
-    wstat = 0
     jobQ = deque(hiTetradJobs)
     while len(jobQ) > 0:
-        #    process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],
-        #        shell=True,stdout=subprocess.PIPE)
-        #    nJobs=int(process.communicate()[0])
-        #    if nJobs>init_jobs+4:
-        #        time.sleep(5)
-        #    else:
         thisJob = jobQ.popleft()
         wstat = thisJob.runInput(newdir, scrdir)
-        #    if wstat:
-        #        time.sleep(2)
-        #    else:
-        #        mainlogger.info("Not waiting on hi tetrad jobs\n")
 
-    wstat = 0
-
-## Run cluster job
-if tflag == False:
+# Run cluster job
+if not tflag:
     clusterJob.runInput(newdir, scrdir)
 
-# wait=1
-# while wait:
-#    process=subprocess.Popen(['qstat -u '+user+' | grep -c mem8g'],
-#        shell=True,stdout=subprocess.PIPE)
-#    nJobs=int(process.communicate()[0])
-#    if nJobs>init_jobs:
-#        time.sleep(10)
-#    else:
-#        wait=0
-
-
 if level > 0:
-    if tflag == False:
+    if not tflag:
         for i in loMonJobs:
             #            i.runInput(newdir,scrdir)
             extract.energy(i, newdir, f12aFlag, trip_factor, CORR)
@@ -370,7 +267,7 @@ if level > 0:
                     extract.hessian(i, newdir)
 
 if level > 1:
-    if tflag == False:
+    if not tflag:
         for i in loPairJobs:
             #            i.runInput(newdir,scrdir)
             extract.energy(i, newdir, f12aFlag, trip_factor, CORR)
@@ -380,7 +277,7 @@ if level > 1:
                     extract.hessian(i, newdir)
 
 if level > 2:
-    if tflag == False:
+    if not tflag:
         for i in loTrimerJobs:
             #            i.runInput(newdir,scrdir)
             extract.energy(i, newdir, f12aFlag, trip_factor, CORR)
@@ -390,7 +287,7 @@ if level > 2:
                     extract.hessian(i, newdir)
 
     if level > 3:
-        if tflag == False:
+        if not tflag:
             for i in loTetradJobs:
                 print("yoo")
                 print(i)
@@ -407,7 +304,6 @@ if level > 2:
 
 if level > 0:
     for i in hiMonJobs:
-        #        i.runInput(newdir,scrdir)
         extract.energy(i, newdir, f12aFlag, trip_factor, CORR)
         if deriv > 0:
             extract.grad(i, newdir)
@@ -416,7 +312,6 @@ if level > 0:
 
 if level > 1:
     for i in hiPairJobs:
-        #        i.runInput(newdir,scrdir)
         extract.energy(i, newdir, f12aFlag, trip_factor, CORR)
         if deriv > 0:
             extract.grad(i, newdir)
@@ -425,7 +320,6 @@ if level > 1:
 
 if level > 2:
     for i in hiTrimerJobs:
-        #        i.runInput(newdir,scrdir)
         extract.energy(i, newdir, f12aFlag, trip_factor, CORR)
         if deriv > 0:
             extract.grad(i, newdir)
@@ -434,16 +328,13 @@ if level > 2:
 
     if level > 3:
         for i in hiTetradJobs:
-
-            #            i.runInput(newdir,scrdir)
             extract.energy(i, newdir, f12aFlag, trip_factor, CORR)
             if deriv > 0:
                 extract.grad(i, newdir)
                 if deriv > 1:
                     extract.hessian(i, newdir)
 
-# clusterJob.runInput(newdir,scrdir)
-if tflag == False:
+if not tflag:
     extract.energy(clusterJob, newdir, f12aFlag, trip_factor, CORR)
     if deriv > 0:
         extract.grad(clusterJob, newdir)
@@ -461,16 +352,13 @@ if level > 0:
                 Jobs.extend([loTetradJobs, hiTetradJobs])
 
 # Assemble and send back
-E = newass.newenergy(Jobs, level, tflag)
-# E=newass.newenergy(Jobs,level,True)
+E = assemble.newenergy(Jobs, level, tflag)
 if deriv > 0:
-    # G=assemble.gradient(Jobs,level)
-    G = newass.newgrad(Jobs, level, tflag)
+    G = assemble.newgrad(Jobs, level, tflag)
     if deriv > 1:
-        # H=assemble.hessian(Jobs,level)
-        H = newass.newhess(Jobs, level, tflag)
+        H = assemble.newhess(Jobs, level, tflag)
 
-## Send it back
+# Send it back
 f = open(output, "w")
 print("%.12f," % E, "0.0, 0.0, 0.0", file=f)  ### zeroes are for dipole
 if deriv > 0:

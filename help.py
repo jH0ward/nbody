@@ -1,10 +1,11 @@
 #!/usr/bin/python
-import sys, os, getpass
+import sys
+import os
+import getpass
 import datetime
-import time
-from subprocess import call
-import logging, extract, assemble, subprocess
-import newass
+import logging
+import extract
+import assemble
 from setup import init, restartJob
 from files import create
 from frags import find_mons
@@ -421,14 +422,14 @@ if level > 0:
                 Jobs.extend([loTetradJobs, hiTetradJobs])
 
 # Assemble and send back
-E = newass.newenergy(Jobs, level, tflag)
+E = assemble.newenergy(Jobs, level, tflag)
 # E=newass.newenergy(Jobs,level,True)
 if deriv > 0:
     # G=assemble.gradient(Jobs,level)
     # G=newass.newgrad(Jobs,level,tflag)
     if deriv > 1:
         # H=assemble.hessian(Jobs,level)
-        H = newass.newhess(Jobs, level, tflag)
+        H = assemble.newhess(Jobs, level, tflag)
 
 G = np.zeros(natom * 3)
 G.shape = (natom, 3)
